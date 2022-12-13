@@ -21,6 +21,15 @@ void keyPressed()
     {
        map.generate(-2);
     }
+    
+    // Toggles whether you can see maze cells and its connections
+    if (key == 'f')
+    {
+       if (DEBUG)
+           DEBUG = false;
+       else
+           DEBUG = true;
+    }
 }
 
 

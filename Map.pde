@@ -83,8 +83,7 @@ class Map
    void generate(int which)
    {
       walls.clear(); // resets map
-      
-      // TODO: implement algorithm to generate maze
+      cells.clear(); // resets cells
       
       // Creating base grid
       // Creating horizontal cell walls
@@ -105,7 +104,7 @@ class Map
           }
       }
       
-      // Creating maze cells
+      // Creating maze cells at the center of each grid box
       for (int i = GRID_SIZE/2; i <= height - GRID_SIZE/2; i += GRID_SIZE)
       {
           for (int j = GRID_SIZE/2; j <= width - GRID_SIZE/2; j += GRID_SIZE)
@@ -114,7 +113,74 @@ class Map
           }
       }
       
-      // Creating connections between maze cells **WIP**
+      // Establishing neighbors between maze cells
+      for (int i = 0; i < cells.size(); i++)
+      {
+          for (int j = 0; j < cells.size(); j++)
+          {
+               if (i == j)
+                   continue;
+               if (cells.get(i).point.x == cells.get(j).point.x)
+               {
+                   if (cells.get(i).point.y + GRID_SIZE == cells.get(j).point.y ||
+                       cells.get(i).point.y - GRID_SIZE == cells.get(j).point.y)
+                   {
+                       cells.get(i).addNeighbor(cells.get(j));
+                   }
+               }
+               if (cells.get(i).point.y == cells.get(j).point.y)
+               {
+                   if (cells.get(i).point.x + GRID_SIZE == cells.get(j).point.x ||
+                       cells.get(i).point.x - GRID_SIZE == cells.get(j).point.x)
+                   {
+                       cells.get(i).addNeighbor(cells.get(j));
+                   }
+               }
+          }
+      }
+      
+      // Using Prim's algorithm to remove walls for maze
+      int index = int(random(cells.size())); // choose a random starting cell
+      generatePath(cells.get(index));
+   }
+   
+   // Using Prim's algorithm
+   void generatePath(MazeCell cell)
+   {
+       cell.visited = true; // marks a cell as visited
+       int index = int(random(cell.neighbors.size())); // chooses a random neighbor to try and connect to
+       PVector from, to;
+       
+       for (int i = 0; i < cell.neighbors.size(); i++)
+       {
+           if (cell.neighbors.get(index).visited == false)
+           {
+               // Add a wall connection between the two neighbors
+               cell.addConnection(cell.neighbors.get(index));
+               cell.neighbors.get(index).addConnection(cell);
+               
+               // Get the coordinates of the connection wall to remove the maze wall it is cutting through
+               from = cell.point;
+               to = cell.neighbors.get(index).point;
+               removeWall(from, to);
+               
+               // Do the same procedure for the neighbor that was connected to
+               generatePath(cell.neighbors.get(index));
+           }
+           // When all cells have been visited on a path, look for the next unvisited cell and start from there
+           index = (index+1)%cell.neighbors.size();
+       }
+   }
+   
+   void removeWall(PVector from, PVector to)
+   {
+       for (int i = 0; i < walls.size(); i++)
+       {
+           if (walls.get(i).crosses(from, to))
+           {
+               walls.remove(i);
+           }
+       }
    }
    
    void update(float dt)
@@ -130,9 +196,12 @@ class Map
       {
          w.draw();
       }
-      for (MazeCell w : cells)
+      if (DEBUG)
       {
-         w.draw();
+        for (MazeCell w : cells)
+        {
+           w.draw();
+        }
       }
    }
 }
@@ -141,22 +210,26 @@ class Map
 class MazeCell
 {
     PVector point;
-    ArrayList<PVector> neighbors;
+    ArrayList<MazeCell> neighbors;
     ArrayList<Wall> connections;
     boolean visited;
     
     MazeCell(PVector point)
     {
         this.point = point;
-        neighbors = new ArrayList<PVector>();
+        neighbors = new ArrayList<MazeCell>();
         connections = new ArrayList<Wall>();
         visited = false;
     }
     
-    void addNeighbor(PVector neighbor)
+    void addNeighbor(MazeCell neighbor)
     {
         neighbors.add(neighbor);
-        connections.add(new Wall(this.point, neighbor));
+    }
+    
+    void addConnection(MazeCell neighbor)
+    {
+        connections.add(new Wall(this.point, neighbor.point));
     }
     
     void draw()
@@ -167,7 +240,9 @@ class MazeCell
         circle(point.x, point.y, GRID_SIZE/25);
         for (Wall w : connections)
         {
-           w.draw();
+           stroke(255, 0, 0);
+           strokeWeight(1);
+           line(w.start.x, w.start.y, w.end.x, w.end.y);
         }
     }
 }
