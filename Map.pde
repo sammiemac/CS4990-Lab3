@@ -97,11 +97,11 @@ class Map
       }
       
       // Creating vertical cell walls
-      for (int i = 0; i <= width; i += GRID_SIZE)
+      for (int i = GRID_SIZE; i <= width; i += GRID_SIZE)
       {
-          for (int j = 0; j <= height; j += GRID_SIZE)
+          for (int j = GRID_SIZE; j <= height; j += GRID_SIZE)
           {
-              walls.add(new Wall(new PVector(i, j), new PVector(i, j + GRID_SIZE)));
+              walls.add(new Wall(new PVector(i, j - GRID_SIZE), new PVector(i, j)));
           }
       }
       
