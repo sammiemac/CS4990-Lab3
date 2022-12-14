@@ -72,17 +72,20 @@ class Wall
 class Map
 {
    ArrayList<Wall> walls;
+   ArrayList<Wall> connections;
    ArrayList<MazeCell> cells;
    
    Map()
    {
       walls = new ArrayList<Wall>();
+      connections = new ArrayList<Wall>();
       cells = new ArrayList<MazeCell>();
    }
    
    void generate(int which)
    {
       walls.clear(); // resets map
+      connections.clear(); // resets connections
       cells.clear(); // resets cells
       
       // Creating base grid
@@ -149,20 +152,16 @@ class Map
    {
        cell.visited = true; // marks a cell as visited
        int index = int(random(cell.neighbors.size())); // chooses a random neighbor to try and connect to
-       PVector from, to;
        
        for (int i = 0; i < cell.neighbors.size(); i++)
        {
            if (cell.neighbors.get(index).visited == false)
            {
                // Add a wall connection between the two neighbors
-               cell.addConnection(cell.neighbors.get(index));
-               cell.neighbors.get(index).addConnection(cell);
+               connections.add(new Wall(cell.point, cell.neighbors.get(index).point));
                
                // Get the coordinates of the connection wall to remove the maze wall it is cutting through
-               from = cell.point;
-               to = cell.neighbors.get(index).point;
-               removeWall(from, to);
+               removeWall(cell.point, cell.neighbors.get(index).point);
                
                // Do the same procedure for the neighbor that was connected to
                generatePath(cell.neighbors.get(index));
@@ -179,6 +178,7 @@ class Map
            if (walls.get(i).crosses(from, to))
            {
                walls.remove(i);
+               break;
            }
        }
    }
@@ -202,6 +202,12 @@ class Map
         {
            w.draw();
         }
+        for (Wall w : connections)
+        {
+            stroke(255, 0, 0);
+            strokeWeight(0.75);
+            line(w.start.x, w.start.y, w.end.x, w.end.y);
+        }
       }
    }
 }
@@ -211,14 +217,12 @@ class MazeCell
 {
     PVector point;
     ArrayList<MazeCell> neighbors;
-    ArrayList<Wall> connections;
     boolean visited;
     
     MazeCell(PVector point)
     {
         this.point = point;
         neighbors = new ArrayList<MazeCell>();
-        connections = new ArrayList<Wall>();
         visited = false;
     }
     
@@ -227,22 +231,11 @@ class MazeCell
         neighbors.add(neighbor);
     }
     
-    void addConnection(MazeCell neighbor)
-    {
-        connections.add(new Wall(this.point, neighbor.point));
-    }
-    
     void draw()
     {
         stroke(255, 0, 0);
         strokeWeight(3);
         fill(255, 0, 0);
         circle(point.x, point.y, GRID_SIZE/25);
-        for (Wall w : connections)
-        {
-           stroke(255, 0, 0);
-           strokeWeight(1);
-           line(w.start.x, w.start.y, w.end.x, w.end.y);
-        }
     }
 }

@@ -30,6 +30,36 @@ void keyPressed()
        else
            DEBUG = true;
     }
+    
+    // Use 'w' and 's' keys to change the GRID_SIZE; bounded 7-301
+    if (key == 'w')
+    {
+       GRID_SIZE++;
+       if (GRID_SIZE >= 301)
+       {
+           GRID_SIZE = 301;
+           System.out.println("This maze is too large. Also too easy, don't you think?");
+       }
+       else
+       {
+           map.generate(-2);
+           System.out.println("New grid size: " + GRID_SIZE);
+       }
+    }
+    if (key == 's')
+    {
+       GRID_SIZE--;
+       if (GRID_SIZE <= 7)
+       {
+           GRID_SIZE = 8;
+           System.out.println("This maze is too small. Will encounter overflow error.");
+       }
+       else
+       {
+           map.generate(-2);
+           System.out.println("New grid size: " + GRID_SIZE);
+       }
+    }
 }
 
 
