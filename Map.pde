@@ -69,6 +69,35 @@ class Wall
 }
 
 
+// Added MazeCell class to keep track of when using Prim's algorithm
+class MazeCell
+{
+    PVector point;
+    ArrayList<MazeCell> neighbors;
+    boolean visited;
+    
+    MazeCell(PVector point)
+    {
+        this.point = point;
+        neighbors = new ArrayList<MazeCell>();
+        visited = false;
+    }
+    
+    void addNeighbor(MazeCell neighbor)
+    {
+        neighbors.add(neighbor);
+    }
+    
+    void draw()
+    {
+        stroke(255, 0, 0);
+        strokeWeight(3);
+        fill(255, 0, 0);
+        circle(point.x, point.y, GRID_SIZE/25);
+    }
+}
+
+
 class Map
 {
    ArrayList<Wall> walls;
@@ -210,32 +239,4 @@ class Map
         }
       }
    }
-}
-
-// Added MazeCell class to keep track of when using Prim's algorithm
-class MazeCell
-{
-    PVector point;
-    ArrayList<MazeCell> neighbors;
-    boolean visited;
-    
-    MazeCell(PVector point)
-    {
-        this.point = point;
-        neighbors = new ArrayList<MazeCell>();
-        visited = false;
-    }
-    
-    void addNeighbor(MazeCell neighbor)
-    {
-        neighbors.add(neighbor);
-    }
-    
-    void draw()
-    {
-        stroke(255, 0, 0);
-        strokeWeight(3);
-        fill(255, 0, 0);
-        circle(point.x, point.y, GRID_SIZE/25);
-    }
 }
