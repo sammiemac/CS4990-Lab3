@@ -62,6 +62,7 @@ void keyPressed()
     }
 }
 
+String output = "mazes/new_maze.png"; 
 
 void draw() {
   background(0);
@@ -69,5 +70,7 @@ void draw() {
   float dt = (millis() - lastt)/1000.0;
   lastt = millis();
   
-  map.update(dt);  
+  map.update(dt);
+  
+  save(output);
 }
